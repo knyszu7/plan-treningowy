@@ -1,0 +1,14 @@
+# Netlify: statyczna strona bez budowania, publikowany jest cały folder.
+[build]
+  publish = "."
+
+# service-worker.js i index.html zawsze świeże, żeby telefon szybko dostał nową wersję
+[[headers]]
+  for = "/service-worker.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache"

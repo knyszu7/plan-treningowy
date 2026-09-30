@@ -25,14 +25,17 @@ serve.ps1 / uruchom-lokalnie.bat ← podgląd na komputerze
 ## Podgląd na komputerze
 Dwuklik na `uruchom-lokalnie.bat`, potem otwórz `http://localhost:8000`.
 
-## Instalacja na iPhonie
-1. Wejdź na **https://app.netlify.com/drop** i przeciągnij cały ten folder.
-2. Otwórz otrzymany adres `https://...netlify.app` w **Safari** na iPhonie.
-3. **Udostępnij** → **Dodaj do ekranu początkowego** → **Dodaj**.
+## Publikacja (automatyczna przez GitHub + Netlify)
+Folder jest repozytorium Git połączonym z GitHubem, a Netlify publikuje każdą zmianę
+wypchniętą na gałąź `main` (ustawienia w `netlify.toml`).
 
-## Aktualizacja po zmianach
-Zwiększ numer w `CACHE_NAME` w `service-worker.js` (np. `v1` → `v2`) i wgraj folder ponownie –
-inaczej telefon może pokazywać starą wersję z pamięci.
+1. Po zmianach zwiększ numer w `CACHE_NAME` w `service-worker.js` (np. `v2` → `v3`) –
+   inaczej telefon może pokazywać starą wersję z pamięci.
+2. `git add -A`, `git commit -m "opis zmiany"`, `git push` – po chwili nowa wersja jest online.
+
+## Instalacja na iPhonie
+1. Otwórz adres `https://...netlify.app` w **Safari** na iPhonie.
+2. **Udostępnij** → **Dodaj do ekranu początkowego** → **Dodaj**.
 
 ## Kopia zapasowa
 **Więcej → Eksportuj JSON** co jakiś czas (szczególnie przed zmianą telefonu lub czyszczeniem Safari).
