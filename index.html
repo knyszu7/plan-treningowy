@@ -1,0 +1,625 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2f6fed">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Trening">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="manifest" href="manifest.json">
+<title>Plan Treningowy</title>
+<style>
+:root{
+  --bg:#f4f5f7; --card:#fff; --text:#15181d; --muted:#6b7280; --line:#e3e6ea;
+  --accent:#2f6fed; --accent-soft:#e6eeff; --ok:#16a34a; --ok-soft:#dcfce7; --warn:#d97706; --danger:#dc2626;
+  --radius:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1115; --card:#181b21; --text:#e8eaee; --muted:#9097a3; --line:#2a2f38;
+    --accent:#5b8cff; --accent-soft:#1d2842; --ok:#22c55e; --ok-soft:#133222; --warn:#f59e0b; --danger:#f87171;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f1115; --card:#181b21; --text:#e8eaee; --muted:#9097a3; --line:#2a2f38;
+  --accent:#5b8cff; --accent-soft:#1d2842; --ok:#22c55e; --ok-soft:#133222; --warn:#f59e0b; --danger:#f87171;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-bottom:84px}
+header{position:sticky;top:0;z-index:5;background:var(--bg);padding:calc(14px + env(safe-area-inset-top)) 16px 10px;border-bottom:1px solid var(--line)}
+header h1{margin:0;font-size:20px}
+header p{margin:2px 0 0;color:var(--muted);font-size:13px}
+main{max-width:720px;margin:0 auto;padding:16px}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);z-index:5}
+nav button{flex:1;border:0;background:none;color:var(--muted);padding:10px 4px 12px;font:inherit;font-size:13px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+nav button .ic{font-size:20px;line-height:1}
+nav button.on{color:var(--accent);font-weight:600}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:12px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.between{justify-content:space-between}
+.grow{flex:1;min-width:0}
+h2{font-size:17px;margin:0 0 10px}
+h3{font-size:15px;margin:0}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:10px;padding:8px 12px;font:inherit;cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.btn.danger{color:var(--danger)}
+.btn.ghost{border-color:transparent;background:none;padding:6px 8px}
+.btn.block{width:100%}
+input,textarea,select{font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:8px 10px;width:100%;min-width:0}
+input:focus,textarea:focus,select:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:transparent}
+textarea{resize:vertical;min-height:40px}
+label{display:block;font-size:12px;color:var(--muted);margin-bottom:3px}
+.grid{display:grid;gap:8px}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g2{grid-template-columns:1fr 1fr}
+@media (max-width:480px){.g4{grid-template-columns:repeat(2,1fr)}}
+.chip{display:inline-block;background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:2px 9px;font-size:12px;font-weight:600}
+.chip.gray{background:var(--bg);color:var(--muted);border:1px solid var(--line)}
+.ex{border-top:1px solid var(--line);padding-top:12px;margin-top:12px}
+.ex:first-of-type{border-top:0;margin-top:0;padding-top:0}
+.sets{width:100%;border-collapse:collapse;margin-top:8px}
+.sets th{font-size:11px;font-weight:600;color:var(--muted);text-align:left;padding:0 4px 4px;text-transform:uppercase;letter-spacing:.03em}
+.sets td{padding:3px 4px}
+.sets td:first-child{width:28px;font-weight:600;color:var(--muted)}
+.sets td:last-child{width:44px}
+.sets input{padding:7px 6px;text-align:center}
+.sets tr.done input{background:var(--ok-soft);border-color:var(--ok)}
+.check{width:38px;height:36px;border-radius:9px;border:1px solid var(--line);background:var(--bg);cursor:pointer;font-size:16px;color:var(--muted)}
+tr.done .check{background:var(--ok);border-color:var(--ok);color:#fff}
+.prev{font-size:12px;color:var(--muted);margin-top:2px}
+.empty{text-align:center;color:var(--muted);padding:30px 10px}
+.tabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:12px;padding-bottom:2px}
+.tabs button{flex:none}
+.tabs .btn.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:600}
+.timer{position:fixed;left:50%;transform:translateX(-50%);bottom:78px;background:var(--text);color:var(--bg);border-radius:999px;padding:8px 14px;display:flex;gap:10px;align-items:center;z-index:6;box-shadow:0 6px 20px rgba(0,0,0,.25);font-variant-numeric:tabular-nums}
+.timer[hidden]{display:none}
+.timer button{background:none;border:0;color:inherit;cursor:pointer;font:inherit;opacity:.8}
+.hist-ex{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px dashed var(--line);font-size:14px}
+.hist-ex:first-child{border-top:0}
+.note{background:var(--bg);border-left:3px solid var(--accent);padding:6px 10px;border-radius:6px;font-size:13px;white-space:pre-wrap;margin-top:6px}
+details summary{cursor:pointer;list-style:none}
+details summary::-webkit-details-marker{display:none}
+.week{border:1px solid var(--line);border-radius:12px;padding:10px;margin-top:8px}
+.week.cur{border-color:var(--accent);background:var(--accent-soft)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.progress{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin-top:8px}
+.progress>div{height:100%;background:var(--ok);transition:width .2s}
+</style>
+</head>
+<body>
+<header>
+  <h1 id="title">Plan treningowy</h1>
+  <p id="subtitle"></p>
+</header>
+<main id="app"></main>
+<div id="timer" class="timer" hidden></div>
+<datalist id="exlib"></datalist>
+<nav>
+  <button data-nav="plan"><span class="ic">📋</span>Plan</button>
+  <button data-nav="workout"><span class="ic">🏋️</span>Trening</button>
+  <button data-nav="history"><span class="ic">📈</span>Historia</button>
+  <button data-nav="settings"><span class="ic">⚙️</span>Więcej</button>
+</nav>
+
+<script>
+const KEY = 'plan-treningowy-v1';
+const uid = () => Math.random().toString(36).slice(2, 10);
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function defaultState() {
+  const ex = (name, sets, repsMin, repsMax, rir, rest, notes='') => ({id: uid(), name, sets, repsMin, repsMax, rir, rest, notes});
+  return {
+    view: 'plan',
+    activePlanId: null,
+    activeSessionId: null,
+    plans: [{
+      id: uid(), name: 'Upper / Lower',
+      days: [
+        {id: uid(), name: 'Upper A', exercises: [
+          ex('Wyciskanie sztangi na ławce płaskiej', 3, 6, 8, 2, 180, 'Łopatki ściągnięte, pauza na klatce'),
+          ex('Wiosłowanie sztangą', 3, 8, 10, 2, 150),
+          ex('Wyciskanie hantli nad głowę', 3, 8, 12, 1, 120),
+          ex('Podciąganie nachwytem', 3, 6, 10, 1, 150),
+          ex('Uginanie ramion z hantlami', 2, 10, 15, 0, 90),
+        ]},
+        {id: uid(), name: 'Lower A', exercises: [
+          ex('Przysiad ze sztangą', 3, 5, 8, 2, 180, 'Głębokość: poniżej równoległej'),
+          ex('Martwy ciąg rumuński', 3, 8, 10, 2, 150),
+          ex('Wykroki bułgarskie', 3, 8, 12, 1, 120, 'Na nogę'),
+          ex('Wspięcia na palce', 3, 12, 15, 0, 60),
+        ]},
+      ]
+    }],
+    sessions: [],
+    library: null
+  };
+}
+
+let S;
+try { S = JSON.parse(localStorage.getItem(KEY)) || defaultState(); } catch { S = defaultState(); }
+if (!S.library) { S.library = []; S.plans.forEach(p => p.days.forEach(d => d.exercises.forEach(e => addToLibrary(e.name)))); }
+if (!S.activePlanId || !S.plans.find(p => p.id === S.activePlanId)) S.activePlanId = S.plans[0]?.id || null;
+let editing = null; // id of exercise being edited
+let planDayTab = null;
+
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} }
+const plan = () => S.plans.find(p => p.id === S.activePlanId);
+const session = () => S.sessions.find(s => s.id === S.activeSessionId);
+const fmtDate = iso => new Date(iso).toLocaleDateString('pl-PL', {weekday:'short', day:'numeric', month:'short', year:'numeric'});
+const repsTxt = e => e.repsMin === e.repsMax || !e.repsMax ? `${e.repsMin}` : `${e.repsMin}–${e.repsMax}`;
+const restTxt = s => !s ? '' : s >= 60 ? `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')} min` : `${s} s`;
+
+// last logged sets for an exercise name (excluding current session)
+function lastPerformance(name, excludeId) {
+  for (let i = S.sessions.length - 1; i >= 0; i--) {
+    const s = S.sessions[i];
+    if (s.id === excludeId || !s.finished) continue;
+    const e = s.exercises.find(x => x.name.toLowerCase() === name.toLowerCase());
+    if (e && e.sets.some(x => x.done)) return {date: s.date, sets: e.sets.filter(x => x.done), note: e.note};
+  }
+  return null;
+}
+// all known exercise names: own library + everything in plans
+function libNames() {
+  const set = new Map();
+  [...S.library, ...S.plans.flatMap(p => p.days.flatMap(d => d.exercises.map(e => e.name)))]
+    .filter(n => n && n.trim()).forEach(n => { const k = n.trim().toLowerCase(); if (!set.has(k)) set.set(k, n.trim()); });
+  return [...set.values()].sort((a, b) => a.localeCompare(b, 'pl'));
+}
+function addToLibrary(name) {
+  name = (name || '').trim();
+  if (name && !S.library.some(n => n.toLowerCase() === name.toLowerCase())) S.library.push(name);
+}
+// planned parameters of an exercise with that name, if it exists in any plan
+function findTemplate(name) {
+  for (const p of S.plans) for (const d of p.days) for (const e of d.exercises)
+    if (e.name.toLowerCase() === name.toLowerCase()) return e;
+  return null;
+}
+// weekly assumptions (coach's rep range / RIR per week)
+const curWeek = p => p?.weeks?.find(w => w.id === p.curWeekId) || p?.weeks?.[0] || null;
+const has = v => v !== '' && v != null;
+function effective(e, p) {
+  const w = curWeek(p);
+  if (!w || e.useWeek === false) return {...e, fromWeek: false};
+  return {...e, fromWeek: true, weekName: w.name, weekNotes: w.notes,
+    repsMin: has(w.repsMin) ? w.repsMin : e.repsMin,
+    repsMax: has(w.repsMax) ? w.repsMax : has(w.repsMin) ? w.repsMin : e.repsMax,
+    rir: has(w.rir) ? w.rir : e.rir};
+}
+const weekTxt = w => [has(w.repsMin) ? `${w.repsMin}${has(w.repsMax) && w.repsMax != w.repsMin ? '–' + w.repsMax : ''} powt.` : '', has(w.rir) ? `RIR ${esc(w.rir)}` : ''].filter(Boolean).join(', ') || 'bez założeń';
+let weeksOpen = false;
+const setTxt = s => `${s.w || 0}kg×${s.r || 0}${s.rir !== '' && s.rir != null ? ` @${s.rir}` : ''}`;
+
+/* ---------------- VIEWS ---------------- */
+function render() {
+  $('#exlib').innerHTML = libNames().map(n => `<option value="${esc(n)}">`).join('');
+  document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.nav === S.view));
+  const p = plan();
+  $('#subtitle').textContent = p ? p.name : 'Brak planu';
+  ({plan: viewPlan, workout: viewWorkout, history: viewHistory, settings: viewSettings})[S.view]();
+}
+
+function viewPlan() {
+  const p = plan();
+  $('#title').textContent = 'Plan';
+  if (!p) { $('#app').innerHTML = `<div class="empty">Brak planu.<br><br><button class="btn primary" data-act="new-plan">+ Nowy plan</button></div>`; return; }
+  if (!p.days.find(d => d.id === planDayTab)) planDayTab = p.days[0]?.id || null;
+  const day = p.days.find(d => d.id === planDayTab);
+
+  let h = `<div class="card"><label>Nazwa planu</label>
+    <div class="row"><input class="grow" data-bind="plan-name" value="${esc(p.name)}">
+    ${S.plans.length > 1 ? `<select style="width:auto" data-bind="switch-plan">${S.plans.map(x => `<option value="${x.id}" ${x.id===p.id?'selected':''}>${esc(x.name)}</option>`).join('')}</select>` : ''}
+    <button class="btn" data-act="new-plan" title="Nowy plan">+ Plan</button></div></div>`;
+
+  const cw = curWeek(p);
+  if (!p.weeks?.length) {
+    h += `<div class="card"><h2>Założenia tygodniowe</h2>
+      <p class="small muted" style="margin-top:0">Zakres powtórzeń i RIR od trenera na każdy tydzień. Ćwiczenia same wezmą wartości z aktualnego tygodnia.</p>
+      <button class="btn" data-act="add-week">+ Dodaj założenia tygodniowe</button></div>`;
+  } else {
+    const ci = p.weeks.indexOf(cw);
+    h += `<details class="card" id="weeks" ${weeksOpen?'open':''}><summary><div class="row between">
+      <div class="grow"><div class="small muted">Założenia tygodniowe · tydzień ${ci+1} z ${p.weeks.length}</div>
+      <h3>${esc(cw.name)}: ${weekTxt(cw)}</h3>${cw.notes ? `<div class="small muted">${esc(cw.notes)}</div>` : ''}</div>
+      <span class="muted">▾</span></div></summary>
+      <div class="row" style="margin-top:10px">
+        <button class="btn" data-act="prev-week" ${ci===0?'disabled':''}>← Poprzedni</button>
+        <button class="btn primary grow" data-act="next-week" ${ci===p.weeks.length-1?'disabled':''}>Następny tydzień →</button></div>
+      ${p.weeks.map(w => `<div class="week ${w===cw?'cur':''}" data-w="${w.id}">
+        <div class="row"><input class="grow" style="font-weight:600" data-wf="name" value="${esc(w.name)}">
+          ${w===cw ? '<span class="chip">aktualny</span>' : `<button class="btn small" data-act="set-week">Ustaw</button>`}
+          <button class="btn ghost danger" data-act="del-week" title="Usuń tydzień">🗑</button></div>
+        <div class="grid g3" style="margin-top:8px">
+          <div><label>Powt. od</label><input data-wf="repsMin" type="number" min="1" inputmode="numeric" value="${w.repsMin ?? ''}"></div>
+          <div><label>Powt. do</label><input data-wf="repsMax" type="number" min="1" inputmode="numeric" value="${w.repsMax ?? ''}"></div>
+          <div><label>RIR</label><input data-wf="rir" inputmode="text" value="${esc(w.rir ?? '')}" placeholder="np. 2 lub 1-2"></div>
+        </div>
+        <input data-wf="notes" style="margin-top:8px" value="${esc(w.notes || '')}" placeholder="uwagi trenera (np. deload, technika)">
+      </div>`).join('')}
+      <button class="btn block" style="margin-top:10px" data-act="add-week">+ Tydzień</button>
+      <p class="small muted" style="margin-bottom:0">W ćwiczeniu możesz odznaczyć „według założeń tygodnia”, żeby miało własny zakres.</p>
+    </details>`;
+  }
+
+  h += `<div class="tabs">${p.days.map(d => `<button class="btn ${d.id===planDayTab?'on':''}" data-act="day-tab" data-id="${d.id}">${esc(d.name)}</button>`).join('')}
+    <button class="btn" data-act="add-day">+ Dzień</button></div>`;
+
+  if (day) {
+    h += `<div class="card"><div class="row between"><input class="grow" style="font-weight:600" data-bind="day-name" value="${esc(day.name)}">
+      <button class="btn ghost" data-act="move-day" data-dir="-1" title="Przesuń w lewo" ${p.days[0]===day?'disabled':''}>←</button>
+      <button class="btn ghost" data-act="move-day" data-dir="1" title="Przesuń w prawo" ${p.days.at(-1)===day?'disabled':''}>→</button>
+      <button class="btn ghost danger" data-act="del-day" title="Usuń dzień">🗑</button></div>
+      <div style="margin-top:12px">`;
+    if (!day.exercises.length) h += `<div class="empty">Brak ćwiczeń w tym dniu.</div>`;
+    day.exercises.forEach((e0, i) => {
+      if (editing === e0.id) { h += exEditor(e0, i, day.exercises.length, cw); return; }
+      const e = effective(e0, p);
+      h += `<div class="ex">
+        <div class="row between"><h3 class="grow">${i+1}. ${esc(e.name)}</h3>
+          <button class="btn ghost" data-act="edit-ex" data-id="${e.id}">✏️</button></div>
+        <div class="row" style="margin-top:6px">
+          <span class="chip">${e.sets} serie</span><span class="chip">${repsTxt(e)} powt.</span>
+          ${has(e.rir) ? `<span class="chip">RIR ${esc(e.rir)}</span>` : ''}
+          ${e.fromWeek ? `<span class="chip gray" title="z założeń tygodniowych">📅 ${esc(e.weekName)}</span>` : ''}
+          ${e.rest ? `<span class="chip gray">⏱ ${restTxt(e.rest)}</span>` : ''}
+          ${e.tempo ? `<span class="chip gray">tempo ${esc(e.tempo)}</span>` : ''}
+        </div>
+        ${e.notes ? `<div class="note">${esc(e.notes)}</div>` : ''}
+      </div>`;
+    });
+    h += `</div><div class="row" style="margin-top:14px">
+      <button class="btn" data-act="add-ex">+ Ćwiczenie</button>
+      <button class="btn primary grow" data-act="start" data-id="${day.id}">▶ Zacznij trening</button></div></div>`;
+  } else {
+    h += `<div class="empty">Dodaj pierwszy dzień treningowy.</div>`;
+  }
+  $('#app').innerHTML = h;
+}
+
+function exEditor(e, i, n, cw) {
+  return `<div class="ex" data-ex="${e.id}">
+    <label>Ćwiczenie</label><input data-f="name" list="exlib" autocomplete="off" value="${esc(e.name)}" placeholder="wpisz lub wybierz z listy">
+    ${cw ? `<label style="display:flex;gap:8px;align-items:center;margin-top:10px;font-size:14px;color:var(--text)">
+      <input type="checkbox" data-f="useWeek" style="width:auto" ${e.useWeek !== false ? 'checked' : ''}>
+      <span>Według założeń tygodnia <span class="muted">(${esc(cw.name)}: ${weekTxt(cw)})</span></span></label>
+      <div class="small muted">Poniższe powtórzenia i RIR działają, gdy to pole jest odznaczone albo tydzień nie ma swoich wartości.</div>` : ''}
+    <div class="grid g4" style="margin-top:8px">
+      <div><label>Serie</label><input data-f="sets" type="number" min="1" inputmode="numeric" value="${e.sets}"></div>
+      <div><label>Powt. od</label><input data-f="repsMin" type="number" min="1" inputmode="numeric" value="${e.repsMin}"></div>
+      <div><label>Powt. do</label><input data-f="repsMax" type="number" min="1" inputmode="numeric" value="${e.repsMax}"></div>
+      <div><label>RIR</label><input data-f="rir" inputmode="text" value="${esc(e.rir ?? '')}" placeholder="np. 2"></div>
+      <div><label>Przerwa (s)</label><input data-f="rest" type="number" min="0" step="15" inputmode="numeric" value="${e.rest ?? ''}"></div>
+      <div><label>Tempo</label><input data-f="tempo" value="${esc(e.tempo || '')}" placeholder="3-1-1-0"></div>
+    </div>
+    <label style="margin-top:8px">Notatki / technika</label><textarea data-f="notes" rows="2" placeholder="wskazówki, ustawienie maszyny...">${esc(e.notes)}</textarea>
+    <div class="row" style="margin-top:8px">
+      <button class="btn ghost" data-act="move-ex" data-dir="-1" ${i===0?'disabled':''}>↑</button>
+      <button class="btn ghost" data-act="move-ex" data-dir="1" ${i===n-1?'disabled':''}>↓</button>
+      <button class="btn ghost danger" data-act="del-ex">Usuń</button>
+      <span class="grow"></span>
+      <button class="btn primary" data-act="done-ex">Gotowe</button>
+    </div></div>`;
+}
+
+function viewWorkout() {
+  const s = session();
+  $('#title').textContent = 'Trening';
+  if (!s) {
+    const p = plan();
+    const lastByDay = id => { const x = [...S.sessions].reverse().find(q => q.dayId === id && q.finished); return x ? fmtDate(x.date) : 'jeszcze nie'; };
+    // suggest next day: the one after last finished session's day
+    const last = [...S.sessions].reverse().find(q => q.finished && q.planId === p?.id);
+    const idx = p && last ? (p.days.findIndex(d => d.id === last.dayId) + 1) % p.days.length : 0;
+    $('#app').innerHTML = !p || !p.days.length ? `<div class="empty">Najpierw ustaw plan.</div>` :
+      (curWeek(p) ? `<div class="card row between"><div class="grow"><div class="small muted">Aktualny tydzień</div>
+        <h3>${esc(curWeek(p).name)}: ${weekTxt(curWeek(p))}</h3>${curWeek(p).notes ? `<div class="small muted">${esc(curWeek(p).notes)}</div>` : ''}</div>
+        <button class="btn" data-act="goto-weeks">Zmień</button></div>` : '') +
+      `<h2>Wybierz dzień</h2>` + p.days.map((d, i) => `<div class="card row between">
+        <div class="grow"><h3>${esc(d.name)} ${i===idx?'<span class="chip">następny</span>':''}</h3>
+        <div class="small muted">${d.exercises.length} ćwiczeń · ostatnio: ${lastByDay(d.id)}</div></div>
+        <button class="btn ${i===idx?'primary':''}" data-act="start" data-id="${d.id}">▶ Start</button></div>`).join('');
+    return;
+  }
+  const total = s.exercises.reduce((a, e) => a + e.sets.length, 0);
+  const done = s.exercises.reduce((a, e) => a + e.sets.filter(x => x.done).length, 0);
+  let h = `<div class="card"><div class="row between"><div><h2 style="margin:0">${esc(s.dayName)}</h2>
+    <div class="small muted">${s.weekName ? esc(s.weekName) + ' · ' : ''}${fmtDate(s.date)} · ${done}/${total} serii</div></div>
+    <button class="btn ok" data-act="finish">Zakończ</button></div>
+    <div class="progress"><div style="width:${total ? done/total*100 : 0}%"></div></div>
+    ${s.weekNotes ? `<div class="note">📅 ${esc(s.weekNotes)}</div>` : ''}</div>`;
+
+  s.exercises.forEach((e, ei) => {
+    const prev = lastPerformance(e.name, s.id);
+    const t = e.target;
+    h += `<div class="card" data-ei="${ei}">
+      <h3>${esc(e.name)}</h3>
+      <div class="row small" style="margin-top:4px">
+        <span class="chip">${t.sets}×${repsTxt(t)}</span>
+        ${has(t.rir) ? `<span class="chip">RIR ${esc(t.rir)}</span>` : ''}
+        ${t.rest ? `<span class="chip gray">⏱ ${restTxt(t.rest)}</span>` : ''}
+        ${t.tempo ? `<span class="chip gray">tempo ${esc(t.tempo)}</span>` : ''}
+      </div>
+      ${t.notes ? `<div class="note">${esc(t.notes)}</div>` : ''}
+      ${prev ? `<div class="prev">Ostatnio (${fmtDate(prev.date)}): ${prev.sets.map(setTxt).join(', ')}${prev.note ? ` — „${esc(prev.note)}”` : ''}</div>` : ''}
+      <table class="sets"><thead><tr><th>#</th><th>kg</th><th>Powt.</th><th>RIR</th><th></th></tr></thead><tbody>
+      ${e.sets.map((x, si) => `<tr class="${x.done?'done':''}" data-si="${si}">
+        <td>${si+1}</td>
+        <td><input data-s="w" type="number" step="0.5" inputmode="decimal" value="${x.w}" placeholder="${prev?.sets[si]?.w ?? ''}"></td>
+        <td><input data-s="r" type="number" inputmode="numeric" value="${x.r}" placeholder="${prev?.sets[si]?.r ?? repsTxt(t)}"></td>
+        <td><input data-s="rir" type="number" step="0.5" inputmode="decimal" value="${x.rir}" placeholder="${t.rir ?? ''}"></td>
+        <td><button class="check" data-act="toggle-set">✓</button></td></tr>`).join('')}
+      </tbody></table>
+      <div class="row" style="margin-top:6px">
+        <button class="btn ghost small" data-act="add-set">+ seria</button>
+        ${e.sets.length > 1 ? `<button class="btn ghost small danger" data-act="rm-set">− seria</button>` : ''}
+        <span class="grow"></span>
+        <button class="btn ghost small muted" data-act="rm-wex">usuń ćwiczenie</button>
+      </div>
+      <textarea data-bind="ex-note" rows="2" placeholder="Notatka do ćwiczenia (np. zwiększyć ciężar, ból barku...)" style="margin-top:6px">${esc(e.note)}</textarea>
+    </div>`;
+  });
+  h += `<div class="card"><label>Dodaj ćwiczenie do tego treningu</label>
+    <div class="row"><input class="grow" id="wex-name" list="exlib" autocomplete="off" placeholder="nazwa ćwiczenia">
+    <button class="btn" data-act="add-wex">+ Dodaj</button></div></div>`;
+  h += `<div class="card"><label>Notatka do treningu</label>
+    <textarea data-bind="session-note" rows="2" placeholder="samopoczucie, sen, energia...">${esc(s.note)}</textarea></div>
+    <div class="row"><button class="btn danger" data-act="cancel-session">Porzuć trening</button><span class="grow"></span>
+    <button class="btn ok" data-act="finish">Zakończ trening</button></div>`;
+  $('#app').innerHTML = h;
+}
+
+function viewHistory() {
+  $('#title').textContent = 'Historia';
+  const list = S.sessions.filter(s => s.finished).slice().reverse();
+  if (!list.length) { $('#app').innerHTML = `<div class="empty">Brak zakończonych treningów.</div>`; return; }
+  $('#app').innerHTML = list.map(s => {
+    const vol = s.exercises.reduce((a, e) => a + e.sets.filter(x => x.done).reduce((b, x) => b + (+x.w||0)*(+x.r||0), 0), 0);
+    const nsets = s.exercises.reduce((a, e) => a + e.sets.filter(x => x.done).length, 0);
+    return `<details class="card"><summary><div class="row between"><div>
+      <h3>${esc(s.dayName)}</h3><div class="small muted">${s.weekName ? esc(s.weekName) + ' · ' : ''}${fmtDate(s.date)} · ${nsets} serii · ${Math.round(vol).toLocaleString('pl-PL')} kg objętości</div></div>
+      <span class="muted">▾</span></div></summary>
+      <div style="margin-top:10px">
+      ${s.exercises.filter(e => e.sets.some(x => x.done)).map(e => `<div class="hist-ex"><div class="grow"><b>${esc(e.name)}</b>
+        ${e.note ? `<div class="small muted">„${esc(e.note)}”</div>` : ''}</div>
+        <div class="small" style="text-align:right">${e.sets.filter(x => x.done).map(setTxt).join('<br>')}</div></div>`).join('')}
+      ${s.note ? `<div class="note">${esc(s.note)}</div>` : ''}
+      <div class="row" style="margin-top:10px"><button class="btn ghost danger small" data-act="del-session" data-id="${s.id}">Usuń wpis</button></div>
+      </div></details>`;
+  }).join('');
+}
+
+function viewSettings() {
+  $('#title').textContent = 'Więcej';
+  const theme = document.documentElement.dataset.theme || 'auto';
+  $('#app').innerHTML = `
+    <div class="card"><h2>Wygląd</h2><div class="row">
+      ${['auto','light','dark'].map(t => `<button class="btn ${theme===t?'primary':''}" data-act="theme" data-t="${t}">${({auto:'Systemowy',light:'Jasny',dark:'Ciemny'})[t]}</button>`).join('')}
+    </div></div>
+    <div class="card"><h2>Kopia zapasowa</h2>
+      <p class="small muted">Dane są zapisane tylko w tej przeglądarce. Eksportuj je, żeby przenieść na inne urządzenie.</p>
+      <div class="row"><button class="btn" data-act="export">⬇ Eksportuj JSON</button>
+      <label class="btn" style="margin:0;color:var(--text);font-size:15px">⬆ Importuj<input type="file" accept=".json" data-bind="import" hidden></label></div></div>
+    <div class="card"><h2>Moje ćwiczenia</h2>
+      <p class="small muted">Baza ćwiczeń podpowiadana przy dodawaniu do planu i treningu.</p>
+      <div class="row"><input class="grow" id="lib-name" placeholder="np. Hip thrust na maszynie">
+      <button class="btn" data-act="lib-add">+ Dodaj</button></div>
+      <div style="margin-top:10px">${S.library.length ? S.library.slice().sort((a,b)=>a.localeCompare(b,'pl')).map(n =>
+        `<div class="row between" style="padding:3px 0"><span>${esc(n)}</span>
+        <button class="btn ghost small danger" data-act="lib-del" data-name="${esc(n)}">✕</button></div>`).join('')
+        : '<div class="small muted">Jeszcze pusto — ćwiczenia dodane w planie trafiają tu automatycznie.</div>'}</div></div>
+    <div class="card"><h2>Plany</h2>
+      ${S.plans.map(p => `<div class="row between" style="padding:4px 0"><span>${esc(p.name)} ${p.id===S.activePlanId?'<span class="chip">aktywny</span>':''}</span>
+        <span>${p.id!==S.activePlanId?`<button class="btn ghost small" data-act="use-plan" data-id="${p.id}">Użyj</button>`:''}
+        <button class="btn ghost small danger" data-act="del-plan" data-id="${p.id}">Usuń</button></span></div>`).join('')}
+    </div>
+    <div class="card"><h2>Skróty</h2><p class="small muted" style="margin:0">
+      <b>RIR</b> – ile powtórzeń zostało w zapasie (0 = do upadku).<br>
+      <b>Tempo</b> – np. 3-1-1-0: opuszczanie, pauza na dole, podnoszenie, pauza na górze (s).<br>
+      Po odhaczeniu serii startuje minutnik przerwy.</p></div>`;
+}
+
+/* ---------------- ACTIONS ---------------- */
+function currentDay() { return plan()?.days.find(d => d.id === planDayTab); }
+
+function startSession(dayId) {
+  if (session() && !confirm('Masz trening w toku. Porzucić go i zacząć nowy?')) { S.view = 'workout'; return render(); }
+  if (session()) S.sessions = S.sessions.filter(s => s.id !== S.activeSessionId);
+  const p = plan(), d = p.days.find(x => x.id === dayId);
+  const s = {
+    id: uid(), planId: p.id, dayId: d.id, dayName: d.name, weekName: curWeek(p)?.name || '', weekNotes: curWeek(p)?.notes || '', date: new Date().toISOString(), note: '', finished: false,
+    exercises: d.exercises.map(e => ({name: e.name, note: '', target: effective(e, p),
+      sets: Array.from({length: +e.sets || 1}, () => ({w: '', r: '', rir: '', done: false}))}))
+  };
+  S.sessions.push(s); S.activeSessionId = s.id; S.view = 'workout'; editing = null;
+  save(); render(); scrollTo(0, 0);
+}
+
+document.addEventListener('click', ev => {
+  const nav = ev.target.closest('[data-nav]');
+  if (nav) { S.view = nav.dataset.nav; editing = null; save(); render(); scrollTo(0,0); return; }
+  const b = ev.target.closest('[data-act]'); if (!b) return;
+  const act = b.dataset.act, p = plan(), day = currentDay(), s = session();
+  const exEl = b.closest('[data-ex]'), ei = +b.closest('[data-ei]')?.dataset.ei, si = +b.closest('[data-si]')?.dataset.si;
+
+  switch (act) {
+    case 'new-plan': {
+      const name = prompt('Nazwa nowego planu:', 'Nowy plan'); if (!name) return;
+      const np = {id: uid(), name, days: [{id: uid(), name: 'Dzień 1', exercises: []}]};
+      S.plans.push(np); S.activePlanId = np.id; planDayTab = np.days[0].id; break;
+    }
+    case 'use-plan': S.activePlanId = b.dataset.id; break;
+    case 'del-plan':
+      if (!confirm('Usunąć ten plan? Historia treningów zostanie.')) return;
+      S.plans = S.plans.filter(x => x.id !== b.dataset.id);
+      if (S.activePlanId === b.dataset.id) S.activePlanId = S.plans[0]?.id || null; break;
+    case 'day-tab': planDayTab = b.dataset.id; editing = null; break;
+    case 'add-day': { const d = {id: uid(), name: `Dzień ${p.days.length+1}`, exercises: []}; p.days.push(d); planDayTab = d.id; break; }
+    case 'add-week': {
+      p.weeks ||= [];
+      const last = p.weeks.at(-1);
+      const w = {id: uid(), name: `Tydzień ${p.weeks.length + 1}`, repsMin: last?.repsMin ?? '', repsMax: last?.repsMax ?? '', rir: last?.rir ?? '', notes: ''};
+      p.weeks.push(w); if (!p.curWeekId) p.curWeekId = w.id; weeksOpen = true; break;
+    }
+    case 'del-week': {
+      const id = b.closest('[data-w]').dataset.w, w = p.weeks.find(x => x.id === id);
+      if (!confirm(`Usunąć „${w.name}”?`)) return;
+      p.weeks = p.weeks.filter(x => x !== w); if (p.curWeekId === id) p.curWeekId = p.weeks[0]?.id || null; break;
+    }
+    case 'set-week': p.curWeekId = b.closest('[data-w]').dataset.w; break;
+    case 'next-week': case 'prev-week': {
+      const i = p.weeks.indexOf(curWeek(p)) + (act === 'next-week' ? 1 : -1);
+      if (p.weeks[i]) p.curWeekId = p.weeks[i].id; break;
+    }
+    case 'goto-weeks': S.view = 'plan'; weeksOpen = true; break;
+    case 'move-day': {
+      const i = p.days.indexOf(day), j = i + +b.dataset.dir;
+      if (j < 0 || j >= p.days.length) return;
+      [p.days[i], p.days[j]] = [p.days[j], p.days[i]]; break;
+    }
+    case 'del-day':
+      if (!confirm(`Usunąć dzień „${day.name}”?`)) return;
+      p.days = p.days.filter(d => d !== day); planDayTab = null; break;
+    case 'add-ex': { const e = {id: uid(), name: '', sets: 3, repsMin: 8, repsMax: 12, rir: 2, rest: 120, tempo: '', notes: ''};
+      day.exercises.push(e); editing = e.id; save(); render(); document.querySelector(`[data-ex="${e.id}"] input`)?.focus(); return; }
+    case 'edit-ex': editing = b.dataset.id; break;
+    case 'done-ex': {
+      const e = day.exercises.find(x => x.id === editing);
+      if (e && !e.name.trim()) e.name = 'Ćwiczenie';
+      if (e) addToLibrary(e.name);
+      editing = null; break;
+    }
+    case 'del-ex': day.exercises = day.exercises.filter(x => x.id !== exEl.dataset.ex); editing = null; break;
+    case 'move-ex': {
+      const i = day.exercises.findIndex(x => x.id === exEl.dataset.ex), j = i + +b.dataset.dir;
+      [day.exercises[i], day.exercises[j]] = [day.exercises[j], day.exercises[i]]; break;
+    }
+    case 'start': return startSession(b.dataset.id);
+    case 'toggle-set': {
+      const e = s.exercises[ei], x = e.sets[si];
+      if (!x.done) { // fill blanks from placeholders
+        const row = b.closest('tr');
+        ['w','r','rir'].forEach(k => { if (x[k] === '') x[k] = row.querySelector(`[data-s="${k}"]`).placeholder.replace(/\s*[–-].*/, ''); });
+        if (e.target.rest) startTimer(+e.target.rest);
+      }
+      x.done = !x.done; break;
+    }
+    case 'add-set': { const e = s.exercises[ei], last = e.sets[e.sets.length-1];
+      e.sets.push({w: last?.w ?? '', r: '', rir: '', done: false}); break; }
+    case 'rm-set': s.exercises[ei].sets.pop(); break;
+    case 'rm-wex':
+      if (s.exercises[ei].sets.some(x => x.done) && !confirm(`Usunąć „${s.exercises[ei].name}” z tego treningu?`)) return;
+      s.exercises.splice(ei, 1); break;
+    case 'add-wex': {
+      const name = $('#wex-name').value.trim(); if (!name) return $('#wex-name').focus();
+      const tpl = (findTemplate(name) && effective(findTemplate(name), plan())) || {sets: 3, repsMin: 8, repsMax: 12, rir: 2, rest: 120, tempo: '', notes: ''};
+      s.exercises.push({name, note: '', target: {...tpl, name},
+        sets: Array.from({length: +tpl.sets || 1}, () => ({w: '', r: '', rir: '', done: false}))});
+      addToLibrary(name); break;
+    }
+    case 'finish':
+      if (!s.exercises.some(e => e.sets.some(x => x.done)) && !confirm('Żadna seria nie jest odhaczona. Zakończyć mimo to?')) return;
+      s.finished = true; S.activeSessionId = null; S.view = 'history'; stopTimer(); break;
+    case 'cancel-session':
+      if (!confirm('Porzucić trening? Wpisane dane przepadną.')) return;
+      S.sessions = S.sessions.filter(x => x.id !== s.id); S.activeSessionId = null; stopTimer(); break;
+    case 'del-session':
+      if (!confirm('Usunąć ten wpis z historii?')) return;
+      S.sessions = S.sessions.filter(x => x.id !== b.dataset.id); break;
+    case 'lib-add': { const n = $('#lib-name').value; if (!n.trim()) return $('#lib-name').focus(); addToLibrary(n); break; }
+    case 'lib-del': S.library = S.library.filter(n => n !== b.dataset.name); break;
+    case 'theme': setTheme(b.dataset.t); break;
+    case 'export': {
+      const {view, ...data} = S;
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'}));
+      a.download = `trening-${new Date().toISOString().slice(0,10)}.json`; a.click(); return;
+    }
+  }
+  save(); render();
+});
+
+document.addEventListener('input', ev => {
+  const t = ev.target, p = plan(), s = session();
+  if (t.dataset.bind === 'plan-name') { p.name = t.value; $('#subtitle').textContent = t.value; }
+  else if (t.dataset.bind === 'day-name') { currentDay().name = t.value; const tab = document.querySelector('.tabs .on'); if (tab) tab.textContent = t.value; }
+  else if (t.dataset.f) {
+    const e = currentDay().exercises.find(x => x.id === t.closest('[data-ex]').dataset.ex);
+    e[t.dataset.f] = t.type === 'checkbox' ? t.checked : t.type === 'number' ? (t.value === '' ? '' : +t.value) : t.value;
+  }
+  else if (t.dataset.wf) {
+    const w = p.weeks.find(x => x.id === t.closest('[data-w]').dataset.w);
+    w[t.dataset.wf] = t.type === 'number' ? (t.value === '' ? '' : +t.value) : t.value;
+  }
+  else if (t.dataset.s) { const x = s.exercises[+t.closest('[data-ei]').dataset.ei].sets[+t.closest('[data-si]').dataset.si]; x[t.dataset.s] = t.value; }
+  else if (t.dataset.bind === 'ex-note') s.exercises[+t.closest('[data-ei]').dataset.ei].note = t.value;
+  else if (t.dataset.bind === 'session-note') s.note = t.value;
+  else return;
+  save();
+});
+
+document.addEventListener('change', ev => {
+  const t = ev.target;
+  if (t.dataset.wf) setTimeout(() => { // refresh summaries, keep focus on the field the user moved to
+    const a = document.activeElement, wId = a?.closest?.('[data-w]')?.dataset.w, wf = a?.dataset?.wf, y = scrollY;
+    render(); scrollTo(0, y);
+    if (wId && wf) document.querySelector(`[data-w="${wId}"] [data-wf="${wf}"]`)?.focus();
+  }, 0);
+  if (t.dataset.bind === 'switch-plan') { S.activePlanId = t.value; planDayTab = null; save(); render(); }
+  if (t.dataset.bind === 'import' && t.files[0]) {
+    t.files[0].text().then(txt => {
+      const d = JSON.parse(txt);
+      if (!Array.isArray(d.plans) || !Array.isArray(d.sessions)) throw 0;
+      if (!confirm('Zastąpić obecne dane danymi z pliku?')) return;
+      S = {...defaultState(), ...d, view: 'plan'}; S.activePlanId = S.plans.find(p => p.id === d.activePlanId)?.id || S.plans[0]?.id;
+      save(); render();
+    }).catch(() => alert('Nieprawidłowy plik.'));
+  }
+});
+
+/* ---------------- REST TIMER ---------------- */
+let timerEnd = 0, timerInt = null;
+function startTimer(sec) { timerEnd = Date.now() + sec * 1000; clearInterval(timerInt); timerInt = setInterval(tick, 250); tick(); }
+function stopTimer() { clearInterval(timerInt); timerInt = null; $('#timer').hidden = true; }
+function tick() {
+  const left = Math.max(0, Math.round((timerEnd - Date.now()) / 1000)), el = $('#timer');
+  el.hidden = false;
+  el.innerHTML = `⏱ <b>${Math.floor(left/60)}:${String(left%60).padStart(2,'0')}</b>
+    <button onclick="timerEnd+=15000;tick()">+15s</button><button onclick="stopTimer()">✕</button>`;
+  if (left === 0) { stopTimer(); try { navigator.vibrate?.([200,100,200]); } catch {} beep(); }
+}
+function beep() { try { const c = new AudioContext(), o = c.createOscillator(); o.connect(c.destination); o.frequency.value = 880; o.start(); o.stop(c.currentTime + .25); } catch {} }
+
+function setTheme(t) {
+  if (t === 'auto') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = t;
+  try { localStorage.setItem(KEY + '-theme', t); } catch {}
+}
+try { const t = localStorage.getItem(KEY + '-theme'); if (t && t !== 'auto') document.documentElement.dataset.theme = t; } catch {}
+
+if (session() && S.view !== 'workout') S.view = 'workout';
+render();
+
+document.addEventListener('toggle', ev => { if (ev.target.id === 'weeks') weeksOpen = ev.target.open; }, true);
+
+// Enter in "add" fields = click the button next to it
+document.addEventListener('keydown', ev => {
+  if (ev.key !== 'Enter') return;
+  const map = {'wex-name': 'add-wex', 'lib-name': 'lib-add'};
+  const act = map[ev.target.id]; if (act) { ev.preventDefault(); document.querySelector(`[data-act="${act}"]`).click(); }
+});
+
+try { navigator.storage?.persist?.(); } catch {}
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('service-worker.js').catch(() => {});
+</script>
+</body>
+</html>
